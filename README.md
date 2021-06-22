@@ -25,6 +25,9 @@ We use [MMSegmentation v0.13.0](https://github.com/open-mmlab/mmsegmentation/tre
 
 ## Installation
 
+dockerfileでコンテナを作成した後
+以下のコマンドで必要なものを入れていく
+
 ```
 apt-get update && apt-get upgrade -y
 apt-get install -y libgl1-mesa-dev
@@ -40,6 +43,8 @@ pip install -r requirements/optional.txt
 pip install attrs
 pip install timm
 ```
+
+
 
 
 For install and data preparation, please refer to the guidelines in [MMSegmentation v0.13.0](https://github.com/open-mmlab/mmsegmentation/tree/v0.13.0).
@@ -65,6 +70,11 @@ tools/dist_test.sh local_configs/segformer/B1/segformer.b1.512x512.ade.160k.py /
 ```
 
 ## Training
+事前学習済みモデル
+```
+cd pretrained
+```
+でディレクトリを作成してそこに入れる
 
 Download [weights](https://drive.google.com/drive/folders/1b7bwrInTW4VLEm27YawHOAMSMikga2Ia?usp=sharing) pretrained on ImageNet-1K, and put them in a folder ```pretrained/```.
 
@@ -76,6 +86,9 @@ python tools/train.py local_configs/segformer/B1/segformer.b1.512x512.ade.160k.p
 
 # Multi-gpu training
 ./tools/dist_train.sh local_configs/segformer/B1/segformer.b1.512x512.ade.160k.py <GPU_NUM>
+```
+```
+./tools/dist_train.sh local_configs/segformer/B5/segformer.b5.1024x1024.city.160k.py 4
 ```
 
 ## License
