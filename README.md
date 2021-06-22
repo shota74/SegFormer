@@ -25,6 +25,23 @@ We use [MMSegmentation v0.13.0](https://github.com/open-mmlab/mmsegmentation/tre
 
 ## Installation
 
+```
+apt-get update && apt-get upgrade -y
+apt-get install -y libgl1-mesa-dev
+
+pip install mmsegmentation
+or
+pip install git+https://github.com/open-mmlab/mmsegmentation.git
+
+
+pip install -e . 
+pip install -r requirements/optional.txt
+
+pip install attrs
+pip install timm
+```
+
+
 For install and data preparation, please refer to the guidelines in [MMSegmentation v0.13.0](https://github.com/open-mmlab/mmsegmentation/tree/v0.13.0).
 
 Other requirements:
