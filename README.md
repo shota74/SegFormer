@@ -72,7 +72,7 @@ tools/dist_test.sh local_configs/segformer/B1/segformer.b1.512x512.ade.160k.py /
 ## Training
 事前学習済みモデル
 ```
-cd pretrained
+mkdir pretrained
 ```
 でディレクトリを作成してそこに入れる
 
