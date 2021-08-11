@@ -2,8 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-import numpy as np
-import os.path as osp
 from mmseg.core import add_prefix
 from mmseg.ops import resize
 from .. import builder
@@ -27,12 +25,13 @@ class EncoderDecoder(BaseSegmentor):
                  auxiliary_head=None,
                  train_cfg=None,
                  test_cfg=None,
-                 pretrained=None):
+                 pretrained=None,
+                 num_data = None):
         super(EncoderDecoder, self).__init__()
         self.backbone = builder.build_backbone(backbone)
         if neck is not None:
             self.neck = builder.build_neck(neck)
-        self._init_decode_head(decode_head)
+        self._init_decode_head(decode_head, num_data)
         self._init_auxiliary_head(auxiliary_head)
 
         self.train_cfg = train_cfg
@@ -42,9 +41,9 @@ class EncoderDecoder(BaseSegmentor):
 
         assert self.with_decode_head
 
-    def _init_decode_head(self, decode_head):
+    def _init_decode_head(self, decode_head, num_data):
         """Initialize ``decode_head``"""
-        self.decode_head = builder.build_head(decode_head)
+        self.decode_head = builder.build_head(decode_head, num_data)
         self.align_corners = self.decode_head.align_corners
         self.num_classes = self.decode_head.num_classes
 
@@ -83,11 +82,11 @@ class EncoderDecoder(BaseSegmentor):
             x = self.neck(x)
         return x
 
-    def encode_decode(self, img, img_metas):
+    def encode_decode(self, img, img_metas, cls_lind):
         """Encode images with backbone and decode into a semantic segmentation
         map of the same size as input."""
         x = self.extract_feat(img)
-        out = self._decode_head_forward_test(x, img_metas)
+        out = self._decode_head_forward_test(x, img_metas, cls_lind)
         out = resize(
             input=out,
             size=img.shape[2:],
@@ -95,13 +94,13 @@ class EncoderDecoder(BaseSegmentor):
             align_corners=self.align_corners)
         return out
 
-    def _decode_head_forward_train(self, x, img_metas, gt_semantic_seg):
+    def _decode_head_forward_train(self, x, img_metas, gt_semantic_seg, cls_lind):
         """Run forward function and calculate loss for decode head in
         training."""
         losses = dict()
         loss_decode = self.decode_head.forward_train(x, img_metas,
                                                      gt_semantic_seg,
-                                                     self.train_cfg)
+                                                     self.train_cfg, cls_lind)
 
         losses.update(add_prefix(loss_decode, 'decode'))
         return losses
@@ -271,31 +270,9 @@ class EncoderDecoder(BaseSegmentor):
             seg_pred = seg_pred.unsqueeze(0)
             return seg_pred
         seg_pred = seg_pred.cpu().numpy()
-        seg_logit = seg_logit.cpu().numpy()
-        #print(seg_logit)
-        #out_dir_ =  '/workspace/SegFormer/result/prob_img/test1'
-        #root, ext = osp.splitext(img_meta[0]['ori_filename'])
-
-        #out_file_ = osp.join(out_dir_, root)
-        #np.save(out_file_, seg_logit)
         # unravel batch dim
         seg_pred = list(seg_pred)
         return seg_pred
-    
-    # def simple_test_np(self, img, img_meta, rescale=True):
-    #     """Simple test with single image."""
-    #     seg_logit = self.inference(img, img_meta, rescale)
-    #     seg_pred = seg_logit.argmax(dim=1)
-    #     if torch.onnx.is_in_onnx_export():
-    #         # our inference backend only support 4D output
-    #         seg_pred = seg_pred.unsqueeze(0)
-    #         return seg_pred
-    #     seg_pred = seg_pred.cpu().numpy()
-    #     seg_logit = seg_logit.cpu().numpy()
-    #     # unravel batch dim
-    #     seg_logit = list(seg_logit)
-    #     seg_pred = list(seg_pred)
-    #     return seg_pred, seg_logit
 
     def aug_test(self, imgs, img_metas, rescale=True):
         """Test with augmentations.

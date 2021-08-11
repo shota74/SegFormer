@@ -16,6 +16,7 @@ from mmseg.utils import get_root_logger
 from mmcv.runner import load_checkpoint
 import math
 
+import sys
 
 class Mlp(nn.Module):
     def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0.):
@@ -164,6 +165,8 @@ class OverlapPatchEmbed(nn.Module):
     def __init__(self, img_size=224, patch_size=7, stride=4, in_chans=3, embed_dim=768):
         super().__init__()
         img_size = to_2tuple(img_size)
+        #print(img_size)
+        #sys.exit()
         patch_size = to_2tuple(patch_size)
 
         self.img_size = img_size
@@ -320,6 +323,7 @@ class MixVisionTransformer(nn.Module):
             x = blk(x, H, W)
         x = self.norm1(x)
         x = x.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
+        
         outs.append(x)
 
         # stage 2

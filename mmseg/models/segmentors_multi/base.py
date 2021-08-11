@@ -56,11 +56,6 @@ class BaseSegmentor(nn.Module):
     def simple_test(self, img, img_meta, **kwargs):
         """Placeholder for single image test."""
         pass
-    
-    @abstractmethod
-    def simple_test_np(self, img, img_meta, **kwargs):
-        """Placeholder for single image test."""
-        pass
 
     @abstractmethod
     def aug_test(self, imgs, img_metas, **kwargs):
@@ -109,7 +104,6 @@ class BaseSegmentor(nn.Module):
 
         if num_augs == 1:
             return self.simple_test(imgs[0], img_metas[0], **kwargs)
-            #return self.simple_test_np(imgs[0], img_metas[0], **kwargs)
         else:
             return self.aug_test(imgs, img_metas, **kwargs)
 

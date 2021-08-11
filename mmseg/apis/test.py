@@ -59,6 +59,8 @@ def single_gpu_test(model,
     for i, data in enumerate(data_loader):
         with torch.no_grad():
             result = model(return_loss=False, **data)
+            #result,logit = model(return_loss=False, rescale=True, **data)
+            #print(result.shape)
 
         if show or out_dir:
             img_tensor = data['img'][0]
@@ -135,6 +137,7 @@ def multi_gpu_test(model,
     for i, data in enumerate(data_loader):
         with torch.no_grad():
             result = model(return_loss=False, rescale=True, **data)
+            
 
         if isinstance(result, list):
             if efficient_test:
